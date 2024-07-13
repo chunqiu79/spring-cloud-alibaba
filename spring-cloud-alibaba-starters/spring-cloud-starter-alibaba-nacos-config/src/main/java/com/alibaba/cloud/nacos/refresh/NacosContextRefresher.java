@@ -16,11 +16,6 @@
 
 package com.alibaba.cloud.nacos.refresh;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-
 import com.alibaba.cloud.nacos.NacosConfigManager;
 import com.alibaba.cloud.nacos.NacosConfigProperties;
 import com.alibaba.cloud.nacos.NacosPropertySourceRepository;
@@ -31,12 +26,16 @@ import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cloud.endpoint.event.RefreshEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * On application start up, NacosContextRefresher add nacos listeners to all application
@@ -76,13 +75,6 @@ public class NacosContextRefresher
 		this.isRefreshEnabled = this.nacosConfigProperties.isRefreshEnabled();
 	}
 
-	/**
-	 * recommend to use
-	 * {@link NacosContextRefresher#NacosContextRefresher(NacosConfigManager, NacosRefreshHistory)}.
-	 * @param refreshProperties refreshProperties
-	 * @param refreshHistory refreshHistory
-	 * @param configService configService
-	 */
 	@Deprecated
 	public NacosContextRefresher(NacosRefreshProperties refreshProperties,
 			NacosRefreshHistory refreshHistory, ConfigService configService) {
@@ -93,8 +85,10 @@ public class NacosContextRefresher
 
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) {
-		// many Spring context
+		// 监听 spring的ApplicationReadyEvent 事件
+		// 这里使用 AtomicBoolean的ready 用来确保只会执行一次
 		if (this.ready.compareAndSet(false, true)) {
+			// 注册 nacos的listener
 			this.registerNacosListenersForApplications();
 		}
 	}
@@ -104,9 +98,6 @@ public class NacosContextRefresher
 		this.applicationContext = applicationContext;
 	}
 
-	/**
-	 * register Nacos Listeners.
-	 */
 	private void registerNacosListenersForApplications() {
 		if (isRefreshEnabled()) {
 			for (NacosPropertySource propertySource : NacosPropertySourceRepository
@@ -115,6 +106,7 @@ public class NacosContextRefresher
 					continue;
 				}
 				String dataId = propertySource.getDataId();
+				// 注册 nacos的listener
 				registerNacosListener(propertySource.getGroup(), dataId);
 			}
 		}
@@ -129,6 +121,8 @@ public class NacosContextRefresher
 							String configInfo) {
 						refreshCountIncrement();
 						nacosRefreshHistory.addRefreshRecord(dataId, group, configInfo);
+						// 发布 RefreshEvent 事件
+						// this 中就包含了 dataId、group、configInfo（主要就是这个configInfo）
 						applicationContext.publishEvent(
 								new RefreshEvent(this, null, "Refresh Nacos config"));
 						if (log.isDebugEnabled()) {
@@ -139,6 +133,8 @@ public class NacosContextRefresher
 					}
 				});
 		try {
+			// 对 nacos的configService 添加 listener
+			// 一旦 configService配置发生变更（发布）之后，就会触发这个 listener
 			configService.addListener(dataKey, groupKey, listener);
 		}
 		catch (NacosException e) {
@@ -162,7 +158,7 @@ public class NacosContextRefresher
 		if (null == nacosConfigProperties) {
 			return isRefreshEnabled;
 		}
-		// Compatible with older configurations
+		// com.alibaba.cloud.nacos.NacosConfigProperties.refreshEnabled 默认是 true
 		if (nacosConfigProperties.isRefreshEnabled() && !isRefreshEnabled) {
 			return false;
 		}
