@@ -19,6 +19,9 @@ package com.alibaba.cloud.examples.model;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @ConfigurationProperties(prefix = "spring.cloud.nacos.config")
 @Component
 public class NacosConfigInfo {
@@ -42,6 +45,8 @@ public class NacosConfigInfo {
 	 * Nacos namespace.
 	 */
 	private String namespace;
+
+	private Map<String, String> map = new HashMap<>();
 
 	public String getServerAddr() {
 		return serverAddr;
@@ -75,4 +80,11 @@ public class NacosConfigInfo {
 		this.namespace = namespace;
 	}
 
+	public Map<String, String> getMap() {
+		return map;
+	}
+
+	public void setMap(Map<String, String> map) {
+		this.map = map;
+	}
 }

@@ -16,20 +16,18 @@
 
 package com.alibaba.cloud.examples.example;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
-import javax.annotation.PostConstruct;
-
 import com.alibaba.cloud.nacos.NacosConfigManager;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Configuration listener example.
@@ -44,7 +42,9 @@ public class ConfigListenerExample {
 	/**
 	 * Nacos dataId.
 	 */
-	public static final String DATA_ID = "nacos-config-example.properties";
+//	public static final String DATA_ID = "nacos-config-example.properties";
+	public static final String DATA_ID = "ext-data-source.yaml";
+
 
 	/**
 	 * Nacos group.
@@ -66,8 +66,9 @@ public class ConfigListenerExample {
 
 			@Override
 			public void receiveConfigInfo(String configInfo) {
-				logger.info("[dataId]:[" + DATA_ID + "],Configuration changed to:"
-						+ configInfo);
+				logger.info("=====配置发生变更监听器");
+//				logger.info("[dataId]:[" + DATA_ID + "],Configuration changed to:"
+//						+ configInfo);
 			}
 		});
 	}

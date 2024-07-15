@@ -16,15 +16,14 @@
 
 package com.alibaba.cloud.examples.example;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.alibaba.cloud.examples.model.NacosConfigInfo;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Dynamic bean refresh example.
@@ -45,6 +44,7 @@ public class BeanAutoRefreshConfigExample {
 		result.put("prefix", nacosConfigInfo.getPrefix());
 		result.put("group", nacosConfigInfo.getGroup());
 		result.put("namespace", nacosConfigInfo.getNamespace());
+		result.put("map", nacosConfigInfo.getMap().toString());
 		return result;
 	}
 

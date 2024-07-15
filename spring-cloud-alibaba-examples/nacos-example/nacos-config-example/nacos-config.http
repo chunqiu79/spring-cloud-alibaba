@@ -1,0 +1,12 @@
+### @ConfigurationProperties自动刷新
+GET http://localhost:18084/nacos/bean
+Accept: application/json
+
+
+### @RefreshScope + @Value 刷新
+GET http://localhost:18084/nacos/extension/config
+Accept: application/json
+
+### 获取 nacos 配置
+GET http://localhost:18084/nacos/getConfig?dataId=ext-data-source.yaml
+Accept: application/json
