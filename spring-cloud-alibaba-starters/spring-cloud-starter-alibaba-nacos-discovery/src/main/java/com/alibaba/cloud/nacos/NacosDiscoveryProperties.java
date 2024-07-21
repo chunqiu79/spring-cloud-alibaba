@@ -16,20 +16,6 @@
 
 package com.alibaba.cloud.nacos;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.annotation.PostConstruct;
-
 import com.alibaba.cloud.nacos.event.NacosDiscoveryInfoChangedEvent;
 import com.alibaba.cloud.nacos.util.InetIPv6Utils;
 import com.alibaba.nacos.api.naming.NamingService;
@@ -38,7 +24,6 @@ import com.alibaba.nacos.client.naming.utils.UtilAndComs;
 import com.alibaba.spring.util.PropertySourcesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -48,24 +33,19 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
-import static com.alibaba.nacos.api.PropertyKeyConst.ACCESS_KEY;
-import static com.alibaba.nacos.api.PropertyKeyConst.CLUSTER_NAME;
-import static com.alibaba.nacos.api.PropertyKeyConst.ENDPOINT;
-import static com.alibaba.nacos.api.PropertyKeyConst.ENDPOINT_PORT;
-import static com.alibaba.nacos.api.PropertyKeyConst.NAMESPACE;
-import static com.alibaba.nacos.api.PropertyKeyConst.NAMING_LOAD_CACHE_AT_START;
-import static com.alibaba.nacos.api.PropertyKeyConst.PASSWORD;
-import static com.alibaba.nacos.api.PropertyKeyConst.SECRET_KEY;
-import static com.alibaba.nacos.api.PropertyKeyConst.SERVER_ADDR;
-import static com.alibaba.nacos.api.PropertyKeyConst.USERNAME;
+import javax.annotation.PostConstruct;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.alibaba.nacos.api.PropertyKeyConst.*;
 
 /**
- * @author dungu.zpf
- * @author xiaojing
- * @author HH
- * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @author <a href="mailto:lyuzb@lyuzb.com">lyuzb</a>
- * @author <a href="mailto:78552423@qq.com">eshun</a>
+ * com.alibaba.cloud.nacos.discovery.NacosDiscoveryAutoConfiguration 启动类中创建的bean
  */
 @ConfigurationProperties("spring.cloud.nacos.discovery")
 public class NacosDiscoveryProperties {
@@ -236,9 +216,12 @@ public class NacosDiscoveryProperties {
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 
+	/**
+	 * 初始化方法
+	 */
 	@PostConstruct
 	public void init() throws Exception {
-
+		// 这里会在metadata中设置 "preserved.register.source" = "SPRING_CLOUD"
 		metadata.put(PreservedMetadataKeys.REGISTER_SOURCE, "SPRING_CLOUD");
 		if (secure) {
 			metadata.put("secure", "true");
@@ -293,6 +276,7 @@ public class NacosDiscoveryProperties {
 			}
 		}
 
+		// 这里会从env环境变量中获取并覆盖
 		this.overrideFromEnv(environment);
 		if (nacosServiceManager.isNacosDiscoveryInfoChanged(this)) {
 			applicationEventPublisher
@@ -593,6 +577,7 @@ public class NacosDiscoveryProperties {
 			String serverAddr = env
 					.resolvePlaceholders("${spring.cloud.nacos.discovery.server-addr:}");
 			if (StringUtils.isEmpty(serverAddr)) {
+				// 这里会设置默认的 serverAddr 为 localhost:8848
 				serverAddr = env.resolvePlaceholders(
 						"${spring.cloud.nacos.server-addr:localhost:8848}");
 			}

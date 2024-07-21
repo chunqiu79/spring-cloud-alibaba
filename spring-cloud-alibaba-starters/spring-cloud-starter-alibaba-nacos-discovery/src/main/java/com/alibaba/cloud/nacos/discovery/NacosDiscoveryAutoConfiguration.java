@@ -26,8 +26,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @author <a href="mailto:echooy.mxq@gmail.com">echooymxq</a>
- **/
+ * @Configuration(proxyBeanMethods = false) : 配置类，不需要生成cglib代理，直接调用，适合不需要互相引用
+ * @ConditionalOnDiscoveryEnabled : spring.cloud.discovery.enabled=true ，默认不配置就生效
+ * @ConditionalOnNacosDiscoveryEnabled : spring.cloud.nacos.discovery.enabled=true ，默认不配置就生效
+ */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnDiscoveryEnabled
 @ConditionalOnNacosDiscoveryEnabled
@@ -36,6 +38,7 @@ public class NacosDiscoveryAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public NacosDiscoveryProperties nacosProperties() {
+		// 这是一个configurationproperties类，前缀：spring.cloud.nacos.discovery
 		return new NacosDiscoveryProperties();
 	}
 

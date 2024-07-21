@@ -16,9 +16,6 @@
 
 package com.alibaba.cloud.nacos.registry;
 
-import java.util.List;
-import java.util.Properties;
-
 import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
 import com.alibaba.cloud.nacos.NacosServiceManager;
 import com.alibaba.nacos.api.exception.NacosException;
@@ -26,17 +23,18 @@ import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+import java.util.Properties;
+
 import static org.springframework.util.ReflectionUtils.rethrowRuntimeException;
 
 /**
- * @author xiaojing
- * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @author <a href="mailto:78552423@qq.com">eshun</a>
+ * ServiceRegistry : 是由spring-cloud提供的
+ * 		spring-cloud启动的时候会调用其register方法
  */
 public class NacosServiceRegistry implements ServiceRegistry<Registration> {
 
@@ -56,6 +54,9 @@ public class NacosServiceRegistry implements ServiceRegistry<Registration> {
 		this.nacosServiceManager = nacosServiceManager;
 	}
 
+	/**
+	 * Registration : 其实就是NacosRegistration
+	 */
 	@Override
 	public void register(Registration registration) {
 
@@ -64,13 +65,16 @@ public class NacosServiceRegistry implements ServiceRegistry<Registration> {
 			return;
 		}
 
+		// 通过读取 nacosDiscoveryProperties配置 创建一个 NacosNamingService 对象
 		NamingService namingService = namingService();
 		String serviceId = registration.getServiceId();
 		String group = nacosDiscoveryProperties.getGroup();
 
+		// 通过 nacosDiscoveryProperties配置 && registration注册信息 创建实例对象
 		Instance instance = getNacosInstanceFromRegistration(registration);
 
 		try {
+			// 注册实例
 			namingService.registerInstance(serviceId, group, instance);
 			log.info("nacos registry, {} {} {}:{} register finished", group, serviceId,
 					instance.getIp(), instance.getPort());
@@ -184,6 +188,9 @@ public class NacosServiceRegistry implements ServiceRegistry<Registration> {
 		instance.setClusterName(nacosDiscoveryProperties.getClusterName());
 		instance.setEnabled(nacosDiscoveryProperties.isInstanceEnabled());
 		instance.setMetadata(registration.getMetadata());
+		// 是临时的还是永久的，默认是临时的 ephemeral = true
+		// ephemeral = true || grpcClientProxy.isAbilitySupportedByServer(AbilityKey.SERVER_SUPPORT_PERSISTENT_INSTANCE_BY_GRPC) 就使用gprc的实现
+		// 其它的就是使用 http的实现
 		instance.setEphemeral(nacosDiscoveryProperties.isEphemeral());
 		return instance;
 	}

@@ -29,8 +29,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * @author xiaojing
- * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * 继承了AbstractAutoServiceRegistration，这个类实现 ApplicationListener 接口
+ * spring启动的时候就会调用 ApplicationListener#onApplicationEvent 方法
  */
 public class NacosAutoServiceRegistration
 		extends AbstractAutoServiceRegistration<Registration> {
@@ -54,6 +54,7 @@ public class NacosAutoServiceRegistration
 
 	@Override
 	protected NacosRegistration getRegistration() {
+		// 注册的信息
 		if (this.registration.getPort() < 0 && this.getPort().get() > 0) {
 			this.registration.setPort(this.getPort().get());
 		}
@@ -68,6 +69,7 @@ public class NacosAutoServiceRegistration
 
 	@Override
 	protected void register() {
+		// spring容器 启动的时候就会调用这个，只会调用一次
 		if (!this.registration.getNacosDiscoveryProperties().isRegisterEnabled()) {
 			log.debug("Registration disabled.");
 			return;
@@ -94,6 +96,7 @@ public class NacosAutoServiceRegistration
 
 	@Override
 	protected boolean isEnabled() {
+		// 必须返回true，才会调用register方法
 		return this.registration.getNacosDiscoveryProperties().isRegisterEnabled();
 	}
 

@@ -16,14 +16,14 @@
 
 package com.alibaba.cloud.nacos;
 
-import java.util.Objects;
-import java.util.Properties;
-
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingMaintainService;
 import com.alibaba.nacos.api.naming.NamingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
+import java.util.Properties;
 
 import static com.alibaba.nacos.api.NacosFactory.createMaintainService;
 import static com.alibaba.nacos.api.NacosFactory.createNamingService;
@@ -43,6 +43,7 @@ public class NacosServiceManager {
 
 	public NamingService getNamingService() {
 		if (Objects.isNull(this.namingService)) {
+			// 通过读取 nacosDiscoveryProperties配置 构建一个 NacosNamingService 对象
 			buildNamingService(nacosDiscoveryProperties.getNacosProperties());
 		}
 		return namingService;
@@ -87,6 +88,7 @@ public class NacosServiceManager {
 		if (Objects.isNull(namingService)) {
 			synchronized (NacosServiceManager.class) {
 				if (Objects.isNull(namingService)) {
+					// 底层使用反射创建对象并赋值
 					namingService = createNewNamingService(properties);
 				}
 			}

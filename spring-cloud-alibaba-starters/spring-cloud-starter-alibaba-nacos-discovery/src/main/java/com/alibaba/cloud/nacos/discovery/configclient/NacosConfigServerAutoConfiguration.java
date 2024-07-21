@@ -16,10 +16,7 @@
 
 package com.alibaba.cloud.nacos.discovery.configclient;
 
-import javax.annotation.PostConstruct;
-
 import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -27,10 +24,10 @@ import org.springframework.cloud.config.server.config.ConfigServerProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
+
 /**
- * Extra configuration for config server if it happens to be registered with Nacos.
  *
- * @author JevonYang
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
@@ -41,6 +38,7 @@ public class NacosConfigServerAutoConfiguration {
 	private NacosDiscoveryProperties properties;
 
 	@Autowired(required = false)
+	// 这个是spring-cloud里面的
 	private ConfigServerProperties server;
 
 	@PostConstruct
@@ -51,6 +49,7 @@ public class NacosConfigServerAutoConfiguration {
 		String prefix = this.server.getPrefix();
 		if (StringUtils.hasText(prefix) && !StringUtils
 				.hasText(this.properties.getMetadata().get("configPath"))) {
+			// configPath设置 默认值，设置为 spring.cloud.config.server.prefix 对应的值
 			this.properties.getMetadata().put("configPath", prefix);
 		}
 	}

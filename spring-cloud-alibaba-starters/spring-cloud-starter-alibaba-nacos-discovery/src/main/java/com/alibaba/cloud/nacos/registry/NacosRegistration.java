@@ -16,15 +16,8 @@
 
 package com.alibaba.cloud.nacos.registry;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
 import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
 import com.alibaba.nacos.api.naming.PreservedMetadataKeys;
-
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.ManagementServerPortUtils;
@@ -32,6 +25,11 @@ import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
+
+import javax.annotation.PostConstruct;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author xiaojing
@@ -124,6 +122,7 @@ public class NacosRegistration implements Registration, ServiceInstance {
 
 	@Override
 	public String getServiceId() {
+		// 获取 spring.cloud.nacos.discovery.service 的值，默认是 spring.application.name 应用名
 		return nacosDiscoveryProperties.getService();
 	}
 
